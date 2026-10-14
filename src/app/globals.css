@@ -1,0 +1,6 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+body { @apply bg-sea text-ink font-body antialiased; }
+:focus-visible { outline: 3px solid #7A2E3B; outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+.bob { animation: bob 3.2s ease-in-out infinite; }
