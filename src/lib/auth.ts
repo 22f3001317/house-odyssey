@@ -13,11 +13,11 @@ const secret = () => {
 };
 export async function setSession(userId: string) {
   const token = await new SignJWT({}).setProtectedHeader({ alg: "HS256" }).setSubject(userId).setExpirationTime("7d").sign(secret());
-  cookies().set(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 604800 });
+  (await cookies()).set(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 604800 });
 }
-export const clearSession = () => cookies().delete(COOKIE);
+export const clearSession = async () => (await cookies()).delete(COOKIE);
 export async function getUser() {
-  const t = cookies().get(COOKIE)?.value;
+  const t = (await cookies()).get(COOKIE)?.value;
   if (!t) return null;
   try {
     const { payload } = await jwtVerify(t, secret());

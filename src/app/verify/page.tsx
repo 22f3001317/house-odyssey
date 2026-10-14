@@ -1,6 +1,6 @@
 import ActionButton from "@/components/ActionButton";
-export default function Verify({ searchParams }: { searchParams: { token?: string } }) {
-  const token = searchParams.token;
+export default async function Verify({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+  const token = (await searchParams).token;
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <h1 className="font-display text-4xl font-bold">Confirm your email</h1>

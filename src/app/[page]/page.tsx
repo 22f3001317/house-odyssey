@@ -6,8 +6,8 @@ const pages: Record<string, { title: string; body: string }> = {
 };
 export function generateStaticParams() { return Object.keys(pages).map((page) => ({ page })); }
 export const dynamicParams = false;
-export default function Stub({ params }: { params: { page: string } }) {
-  const p = pages[params.page];
+export default async function Stub({ params }: { params: Promise<{ page: string }> }) {
+  const p = pages[(await params).page];
   if (!p) notFound();
   return <div className="mx-auto max-w-3xl px-4 py-12"><h1 className="font-display text-4xl font-bold">{p.title}</h1><p className="mt-4 max-w-prose text-lg">{p.body}</p></div>;
 }

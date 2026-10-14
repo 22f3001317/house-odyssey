@@ -1,5 +1,11 @@
-@tailwind base; @tailwind components; @tailwind utilities;
+@import "tailwindcss";
+@theme {
+  --color-sea: #FBF4E6; --color-ink: #5A2431; --color-moss: #8A3B4B; --color-compass: #E8C875; --color-dusk: #7A2E3B;
+  --font-display: "Avenir Next", "Trebuchet MS", ui-rounded, system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
 body { @apply bg-sea text-ink font-body antialiased; }
+button:not(:disabled), [role="tab"] { cursor: pointer; }
 :focus-visible { outline: 3px solid #7A2E3B; outline-offset: 2px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }

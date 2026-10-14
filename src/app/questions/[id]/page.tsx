@@ -5,11 +5,12 @@ import ApiForm from "@/components/ApiForm";
 import { requirePermission } from "@/lib/auth";
 import { answers, getDb, posts, users } from "@/lib/db";
 export const dynamic = "force-dynamic";
-export default async function Question({ params }: { params: { id: string } }) {
+export default async function Question({ params }: { params: Promise<{ id: string }> }) {
   const me = await requirePermission("community:read");
-  if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound();
+  const { id } = await params;
+  if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const db = await getDb();
-  const [q] = await db.select({ p: posts, author: users.name }).from(posts).innerJoin(users, eq(users.id, posts.authorId)).where(and(eq(posts.id, params.id), eq(posts.kind, "question"), eq(posts.status, "published")));
+  const [q] = await db.select({ p: posts, author: users.name }).from(posts).innerJoin(users, eq(users.id, posts.authorId)).where(and(eq(posts.id, id), eq(posts.kind, "question"), eq(posts.status, "published")));
   if (!q) notFound();
   const list = await db.select({ a: answers, author: users.name }).from(answers).innerJoin(users, eq(users.id, answers.authorId)).where(eq(answers.questionId, q.p.id)).orderBy(asc(answers.createdAt));
   const mine = q.p.authorId === me.id;

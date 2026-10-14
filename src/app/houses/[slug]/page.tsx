@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getHouse } from "@/lib/repo";
-export default async function HousePage({ params }: { params: { slug: string } }) {
-  const h = await getHouse(params.slug);
+export default async function HousePage({ params }: { params: Promise<{ slug: string }> }) {
+  const h = await getHouse((await params).slug);
   if (!h) notFound();
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">

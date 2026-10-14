@@ -8,7 +8,7 @@ import { getDb, quests, questCompletions } from "@/lib/db";
 import { levelOf, levelProgress } from "@/lib/xp";
 export const dynamic = "force-dynamic";
 const copy: Record<string, string> = {
-  email_pending: "Confirm your email to continue.", id_pending: "Email confirmed. Student ID verification is the last step before community features unlock.",
+  email_pending: "Confirm your email to continue.", id_pending: "Email confirmed. An organizer will verify your student status, then community features unlock.",
   under_review: "Your student ID is under review.", rejected: "Your verification was not approved. Contact the organizers.", resubmission_required: "Please resubmit your verification details.",
 };
 export default async function Dashboard() {
