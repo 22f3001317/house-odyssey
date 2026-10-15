@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 // Stage 1 placeholders. Each gets a real build in a later stage.
 const pages: Record<string, { title: string; body: string }> = {
-  about: { title: "About House Odyssey", body: "House Odyssey helps students discover their house, find events and resources, and be recognized for contributions. Public pages never show private posts or contact details." },
+  about: { title: "About House Odyssey", body: "House Odyssey helps students discover their house, find events and resources, and be recognized for contributions. Public pages never show private posts or contact details. For statistics, we count page views without cookies or personal identifiers, and we record which signed-in members were active each day. Only administrators can see member lists and statistics." },
   achievements: { title: "Student Achievements", body: "Approved house milestones and event highlights will be listed here. Nothing appears until it is approved for public view." },
 };
 export function generateStaticParams() { return Object.keys(pages).map((page) => ({ page })); }

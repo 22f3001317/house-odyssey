@@ -11,7 +11,7 @@ export const users = pgTable("users", {
   verification: text("verification").notNull().default("email_pending"),
   houseSlug: text("house_slug"), // the SELECTED house; official membership would be a separate, verified field
   interests: text("interests").notNull().default(""), onboarding: text("onboarding").notNull().default("arrival"),
-  xp: integer("xp").notNull().default(0), createdAt: created(),
+  xp: integer("xp").notNull().default(0), lastSeenAt: timestamp("last_seen_at"), createdAt: created(),
 });
 export const emailTokens = pgTable("email_tokens", {
   id: id(), userId: uuid("user_id").notNull(), tokenHash: text("token_hash").notNull().unique(), expiresAt: timestamp("expires_at").notNull(), usedAt: timestamp("used_at"),
@@ -48,6 +48,10 @@ const DDL = [
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS interests text NOT NULL DEFAULT ''`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding text NOT NULL DEFAULT 'arrival'`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS xp integer NOT NULL DEFAULT 0`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS last_seen_at timestamp`,
+  // Analytics: one row per member per active day, and per-day page-view counters. No IPs, cookies or visitor IDs are stored.
+  `CREATE TABLE IF NOT EXISTS activity (user_id uuid NOT NULL, day date NOT NULL, PRIMARY KEY (user_id, day))`,
+  `CREATE TABLE IF NOT EXISTS page_views (day date NOT NULL, path text NOT NULL, views integer NOT NULL DEFAULT 0, PRIMARY KEY (day, path))`,
   `CREATE TABLE IF NOT EXISTS email_tokens (${T}, user_id uuid NOT NULL, token_hash text NOT NULL UNIQUE, expires_at timestamp NOT NULL, used_at timestamp)`,
   `CREATE TABLE IF NOT EXISTS contact_messages (${T}, name text NOT NULL, email text NOT NULL, subject text NOT NULL, message text NOT NULL, ${C})`,
   `CREATE TABLE IF NOT EXISTS quests (${T}, slug text NOT NULL UNIQUE, title text NOT NULL, description text NOT NULL, category text NOT NULL, xp integer NOT NULL, kind text NOT NULL, answer text, requires_approval boolean NOT NULL DEFAULT false, badge text, active boolean NOT NULL DEFAULT true)`,

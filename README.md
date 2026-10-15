@@ -22,5 +22,8 @@ Set these in Vercel, then turn `DEMO_VERIFICATION` off and redeploy: `SMTP_URL`,
 ## Test
     PORT=3200 bash scripts/smoke.sh   # runs a 29-step end-to-end check against a fresh local database
 
+## Admin analytics
+Admins get `/admin/analytics` (members, sign-ups, daily active members, page views, top contributors, onboarding funnel, quest completions), `/admin/users` (searchable member list) and a CSV export. Page views are counts only: no cookies, IPs or visitor IDs are stored. Needs the `analytics:view` permission (admins only).
+
 ## Not built yet
 Notifications and settings pages, post comments, answer voting, file uploads (resources are https links), QR attendance, real email delivery, institutional ID verification (simulated), Vitest unit tests, public "approved achievements" feed.
