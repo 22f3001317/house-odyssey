@@ -20,10 +20,21 @@ Set these in Vercel, then turn `DEMO_VERIFICATION` off and redeploy: `SMTP_URL`,
 - Every protected endpoint goes through `api({ perm })` or `requirePermission()`: auth, role permission, rate limit and Zod validation are enforced on the server.
 
 ## Test
-    PORT=3200 bash scripts/smoke.sh   # runs a 29-step end-to-end check against a fresh local database
+Each script starts the app on a fresh local database and checks the behaviour end to end:
 
-## Admin analytics
-Admins get `/admin/analytics` (members, sign-ups, daily active members, page views, top contributors, onboarding funnel, quest completions), `/admin/users` (searchable member list) and a CSV export. Page views are counts only: no cookies, IPs or visitor IDs are stored. Needs the `analytics:view` permission (admins only).
+    PORT=3200 bash scripts/smoke-admin.sh      # roles, moderation, XP rules, events
+    bash scripts/smoke-analytics.sh            # analytics tab, members tab, CSV export
+    bash scripts/smoke-members.sh              # profiles, achievements, notifications, events, dashboards
+
+## One dashboard, three views
+`/dashboard` is the only dashboard address. What you see depends on your role, and every action is re-checked on the server:
+- **Student:** personalized dashboard (announcements, your events, events and quests matched to your interests, saved items, notifications, submission status, recommendations).
+- **Council member:** moderation queues (quest approvals, resources, reports, event proposals, quests, announcements) plus "My dashboard".
+- **Admin:** everything above plus **Analytics** (members, sign-ups, daily active members, page views, top contributors, funnel) and **Members** (searchable list, CSV export).
+The old `/admin` addresses redirect to `/dashboard`. Page views are counts only: no cookies, IPs or visitor IDs are stored.
+
+## Member features
+Profile (avatar, display name, house, bio, skills, interests, tracks, featured contribution, per-section visibility), achievement showcase (badges and milestones computed only from verified records, with optional progress), saved posts and events, notifications, events (filters, going/interested, coordination thread, organizer-confirmed attendance), settings (password, leaderboard opt-out).
 
 ## Not built yet
-Notifications and settings pages, post comments, answer voting, file uploads (resources are https links), QR attendance, real email delivery, institutional ID verification (simulated), Vitest unit tests, public "approved achievements" feed.
+Password reset ("forgot password"), account deletion, avatar uploads (presets only), emailed notifications, post comments, answer voting, QR attendance, institutional ID verification (simulated), Vitest unit tests, a public "approved achievements" feed.
