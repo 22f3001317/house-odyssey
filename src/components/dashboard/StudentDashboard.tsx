@@ -45,7 +45,7 @@ export default async function StudentDashboard({ u }: { u: User }) {
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center gap-4"><Avatar k={u.avatar} size={72} /><div><h1 className="font-display text-4xl font-bold">Hi, {u.name}</h1>
-        <p>{house ? <span className="font-semibold" style={{ color: house.color }}>{house.name}</span> : "No house chosen yet"} · Level {levelOf(u.xp)} · {u.xp} XP</p></div></header>
+        <p>{house ? <><span className="font-semibold" style={{ color: house.color }}>{house.name}</span> {house.companion.emoji}</> : "No house chosen yet"} · Level {levelOf(u.xp)} · {u.xp} XP</p></div></header>
       {u.onboarding !== "done" && <p className="rounded-xl border-2 border-ink bg-compass/40 p-4">Your adventure isn't finished. <Link className="font-bold underline" href="/onboarding">Continue onboarding</Link></p>}
       {ann.length > 0 && <section aria-label="Announcements" className="space-y-2">{ann.map((a) => <div key={a.id} className="rounded-xl border-2 border-ink bg-dusk p-4 text-sea"><p className="font-bold">{a.title}{a.houseSlug ? ` (${houses.find((h) => h.slug === a.houseSlug)?.name ?? "house"})` : ""}</p><p>{a.body}</p></div>)}</section>}
       <section className="rounded-2xl border-2 border-ink bg-white p-5" aria-label="Progress"><div className="flex flex-wrap justify-between gap-2"><p className="font-display text-xl font-bold">Level {levelOf(u.xp)}</p><p>{levelProgress(u.xp)}/100 XP to next level</p></div>

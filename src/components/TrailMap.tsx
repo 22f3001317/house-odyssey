@@ -1,16 +1,13 @@
 import { houses } from "@/data/seed";
-const pts = [[70, 210], [190, 110], [330, 190], [450, 80]];
+// Twelve houses strung along one winding trail. Each stop shows the house's forest companion; names are in the cards below.
 export default function TrailMap() {
+  const pts = houses.map((_, i) => [34 + i * 41, 140 + Math.sin(i * 0.85) * 70] as const);
   return (
-    <svg viewBox="0 0 520 280" className="w-full max-w-xl" role="img" aria-label="Trail map linking the four houses">
-      <path d="M70,210 Q110,90 190,110 T330,190 T450,80" fill="none" stroke="#5A2431" strokeWidth="4" strokeDasharray="2 12" strokeLinecap="round" />
+    <svg viewBox="0 0 520 280" className="w-full max-w-xl" role="img" aria-label="A winding trail through the twelve forest houses">
+      <path d={`M${pts.map((p) => p.join(",")).join(" L")}`} fill="none" stroke="#5A2431" strokeWidth="3" strokeDasharray="2 10" strokeLinecap="round" strokeLinejoin="round" opacity=".6" />
       {houses.map((h, i) => (
-        <g key={h.slug} transform={`translate(${pts[i][0]} ${pts[i][1]})`}>
-          <circle r="26" fill={h.color} stroke="#5A2431" strokeWidth="4" />
-          <text textAnchor="middle" dy="8" fontSize="22" fontWeight="700" fill="#fff">{h.name[0]}</text>
-          <text textAnchor="middle" y="46" fontSize="14" fontWeight="600" fill="#5A2431">{h.name.replace(" House", "")}</text>
-        </g>
-      ))}
+        <g key={h.slug} transform={`translate(${pts[i][0]} ${pts[i][1]})`}><title>{`${h.name}: ${h.companion.name}`}</title>
+          <circle r="19" fill={h.tint} stroke={h.color} strokeWidth="3.5" /><text textAnchor="middle" dy="7" fontSize="20">{h.companion.emoji}</text></g>))}
     </svg>
   );
 }

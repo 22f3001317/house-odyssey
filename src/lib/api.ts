@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { ZodType } from "zod";
-import { can, getUser, rateLimit, type User } from "@/lib/auth";
+import { can, getUser, hasHouse, rateLimit, type User } from "@/lib/auth";
 
 export const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
 type Opts<T> = { perm?: string; schema?: ZodType<T>; limit?: [number, number] };
@@ -11,6 +11,7 @@ export function api<T = unknown>(o: Opts<T>, fn: (c: { user: User; body: T }) =>
       const user = await getUser();
       if (!user) return fail("Sign in first.", 401);
       if (o.perm && !can(user, o.perm)) return fail("You don't have permission to do that.", 403);
+      if (o.perm === "community:write" && user.role === "student" && !hasHouse(user)) return fail("Choose your house first (open onboarding or your profile).", 403);
       if (o.limit && !rateLimit(`${new URL(req.url).pathname}:${user.id}`, o.limit[0], o.limit[1])) return fail("Slow down and try again shortly.", 429);
       let body = undefined as T;
       if (o.schema) {

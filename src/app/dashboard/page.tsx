@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import ActionButton from "@/components/ActionButton";
 import AdminOverview from "@/components/dashboard/AdminOverview";
 import AnalyticsView from "@/components/dashboard/AnalyticsView";
 import MembersView from "@/components/dashboard/MembersView";
 import StudentDashboard from "@/components/dashboard/StudentDashboard";
-import { can, demoVerification, requireUser } from "@/lib/auth";
+import { can, demoVerification, hasHouse, requireUser } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard | House Odyssey" };
 const copy: Record<string, string> = {
@@ -19,6 +20,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       {u.verification === "id_pending" && demoVerification() && <div className="mt-6 rounded-xl border-2 border-dashed border-ink p-4"><p className="mb-3 text-sm">Prototype only: this simulates the ID check. A real deployment would use an institutional integration.</p><ActionButton endpoint="/api/auth/simulate" label="Simulate verification" className="bg-compass" /></div>}
       <div className="mt-8"><ActionButton endpoint="/api/auth/logout" label="Log out" /></div></div>);
   const staff = can(u, "contributions:review"), admin = can(u, "analytics:view");
+  if (!staff && !hasHouse(u)) redirect("/onboarding");
   if (!staff) return <div className="mx-auto max-w-4xl px-4 py-12"><StudentDashboard u={u} /></div>;
   const tab = sp.tab === "personal" ? "personal" : admin && (sp.tab === "analytics" || sp.tab === "members") ? sp.tab : "overview";
   const tabs = [["overview", admin ? "Overview" : "Moderation"], ...(admin ? [["analytics", "Analytics"], ["members", "Members"]] : []), ["personal", "My dashboard"]];

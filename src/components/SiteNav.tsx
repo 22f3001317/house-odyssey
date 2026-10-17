@@ -1,14 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMe } from "./MeContext";
 import { Menu, X } from "lucide-react";
-type Me = { name: string; verification: string; unread: number } | null;
 const pub = [["/", "Home"], ["/houses", "Explore Houses"], ["/achievements", "Student Achievements"], ["/about", "About"], ["/contact", "Contact Us"]];
 const main = [["/dashboard", "Dashboard"], ["/community", "Community"], ["/questions", "Questions"], ["/resources", "Resources"], ["/events", "Events"], ["/quests", "Quests"], ["/leaderboard", "Leaderboard"]];
 export default function SiteNav() {
   const [open, setOpen] = useState(false);
-  const [me, setMe] = useState<Me>(null);
-  useEffect(() => { fetch("/api/me").then((r) => r.json()).then((d) => setMe(d.user)).catch(() => {}); }, []);
+  const me = useMe() ?? null;
   const verified = me?.verification === "verified", n = me?.unread ?? 0;
   const account = [["/profile", "My profile"], ["/achievements", "Achievements"], ["/saved", "Saved"], ["/notifications", n ? `Notifications (${n})` : "Notifications"], ["/settings", "Settings"]];
   const logout = async () => { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/"; };

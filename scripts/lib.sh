@@ -7,6 +7,7 @@ reg() {
   curl -s $XF $J -d "{\"token\":\"$T\"}" $B/api/auth/verify >/dev/null
   curl -s $XF -c $3 $J -d "{\"email\":\"$2\",\"password\":\"correct-horse-9\"}" $B/api/auth/login >/dev/null
   [ "${4:-1}" = "1" ] && curl -s -b $3 -X POST $B/api/auth/simulate >/dev/null
+  [ "${4:-1}" = "1" ] && [ "${5:-gir}" != "none" ] && curl -s $XF -b $3 $J -d "{\"step\":\"house\",\"house\":\"${5:-gir}\"}" $B/api/onboarding >/dev/null
 }
 post() { curl -s -b $1 $J -d "$3" $B$2; }   # post <jar> <path> <json>
 get()  { curl -s -b $1 $B$2; }              # get <jar> <path>

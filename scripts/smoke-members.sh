@@ -1,5 +1,6 @@
 #!/bin/bash
 . "$(dirname "$0")/lib.sh"
+ROOT_DIR="${ROOT:-$(pwd)}"
 startdev 3190 ADMIN_EMAILS=boss@uni.edu
 un() { sed 's/\\"/"/g;s/<!-- -->//g;s/&quot;/"/g'; }
 ids() { un | grep -o "\"type\":\"$1\",\"id\":\"[0-9a-f-]\{36\}\"" | grep -o '[0-9a-f-]\{36\}' | awk '!s[$0]++'; }
@@ -19,7 +20,7 @@ echo "5 old admin URLs redirect: $(for p in /admin /admin/analytics /admin/users
 echo "6 anon /dashboard: $(curl -s -o /dev/null -w '%{http_code}>%{redirect_url}' $B/dashboard)  unverified Dan: $(get $DAN /dashboard | un | grep -o 'organizer will verify' | head -1)"
 echo "7 admin-only API still blocked: student export=$(code $ASHA /api/admin/export) council export=$(code $BEN /api/admin/export) admin export=$(code $BOSS /api/admin/export)  student action=$(act $ASHA '{"type":"announcement","id":"00000000-0000-4000-8000-000000000000"}' | cut -c1-60)"
 echo "== B. PROFILE =="
-P='{"name":"Asha K","avatar":"fox","house":"ember","bio":"Loves <script>alert(1)</script> robotics","skills":["Rust","Guitar"],"interests":["Programming","Gaming"],"visibility":["bio","interests","badges","featured"],"featured":""}'
+P='{"name":"Asha K","avatar":"fox","house":"gir","bio":"Loves <script>alert(1)</script> robotics","skills":["Rust","Guitar"],"interests":["Programming","Gaming"],"visibility":["bio","interests","badges","featured"],"featured":""}'
 echo "8 save profile: $(post $ASHA /api/profile "$P")"
 echo "9 validation: bad avatar=$(post $ASHA /api/profile "${P/fox/dragon}" | cut -c1-40) | long bio=$(post $ASHA /api/profile "${P/Loves/$(printf 'x%.0s' {1..300})}" | cut -c1-50) | bad interest=$(post $ASHA /api/profile "${P/Gaming/Hacking}" | cut -c1-40) | 9 skills=$(post $ASHA /api/profile "${P/\"Rust\",\"Guitar\"/\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\"}" | cut -c1-45)"
 echo "10 featured others/fake rejected: $(post $ASHA /api/profile "${P/\"featured\":\"\"/\"featured\":\"post:00000000-0000-4000-8000-000000000000\"}")"
@@ -36,7 +37,7 @@ post $BEN /api/posts '{"kind":"question","title":"Best study spot?","body":"Wher
 PIDS=($(get $ASHA /community | un | grep -o '"postId":"[0-9a-f-]\{36\}"' | grep -o '[0-9a-f-]\{36\}' | awk '!s[$0]++')); POST1=${PIDS[0]}
 echo "16 post shows track + author link: $(get $BEN /community | un | grep -c 'Technical')/$(get $BEN /community | un | grep -c "members/$ASHAID")"
 echo "17 feature own post: $(post $ASHA /api/profile "${P/\"featured\":\"\"/\"featured\":\"post:$POST1\"}")  shown to member: $(get $BEN /members/$ASHAID | un | grep -c 'My robot arm')"
-echo "18 feature someone else's post rejected: $(post $CY /api/profile "{\"name\":\"Cy\",\"avatar\":\"star\",\"bio\":\"\",\"skills\":[],\"interests\":[\"Sports\"],\"visibility\":[],\"featured\":\"post:$POST1\",\"house\":\"tide\"}")"
+echo "18 feature someone else's post rejected: $(post $CY /api/profile "{\"name\":\"Cy\",\"avatar\":\"star\",\"bio\":\"\",\"skills\":[],\"interests\":[\"Sports\"],\"visibility\":[],\"featured\":\"post:$POST1\",\"house\":\"kaziranga\"}")"
 echo "19 save post: $(post $BEN /api/saved "{\"kind\":\"post\",\"refId\":\"$POST1\",\"saved\":true}")  twice: $(post $BEN /api/saved "{\"kind\":\"post\",\"refId\":\"$POST1\",\"saved\":true}" | cut -c1-20)  fake: $(post $BEN /api/saved '{"kind":"post","refId":"00000000-0000-4000-8000-000000000000","saved":true}')"
 echo "20 /saved lists it: $(get $BEN /saved | un | grep -c 'My robot arm')  button flips to Unsave: $(get $BEN /community | un | grep -c 'Unsave')"
 echo "21 unsave: $(post $BEN /api/saved "{\"kind\":\"post\",\"refId\":\"$POST1\",\"saved\":false}" | cut -c1-40)  list now: $(get $BEN /saved | un | grep -c 'My robot arm')"
@@ -50,7 +51,7 @@ post $ASHA /api/quests/complete "{\"slug\":\"${SL[2]}\"}" >/dev/null; A=$(get $A
 echo "24 after 3: progress line gone (expect 0): $(echo "$A" | grep -c 'Technical Explorer: ')  earned chip: $(echo "$A" | grep -c 'Technical Explorer')"
 post $ASHA /api/quests/complete '{"slug":"share-a-tip","proof":"Use the quiet floor for exams please"}' >/dev/null
 CID=$(get $BEN /dashboard | ids completion | head -1); echo "25 council approves tip: $(act $BEN "{\"type\":\"completion\",\"id\":\"$CID\",\"decision\":\"approve\"}")  badge on profile: $(get $BEN /members/$ASHAID | un | grep -c 'Helper')"
-for s in start; do post $ASHA /api/onboarding '{"step":"start"}' >/dev/null; done; post $ASHA /api/onboarding '{"step":"house","house":"ember"}' >/dev/null; post $ASHA /api/onboarding '{"step":"story"}' >/dev/null; post $ASHA /api/onboarding '{"step":"interests","interests":["Programming","Gaming"]}' >/dev/null; post $ASHA /api/onboarding '{"step":"finish"}' >/dev/null
+for s in start; do post $ASHA /api/onboarding '{"step":"start"}' >/dev/null; done; post $ASHA /api/onboarding '{"step":"house","house":"gir"}' >/dev/null; post $ASHA /api/onboarding '{"step":"story"}' >/dev/null; post $ASHA /api/onboarding '{"step":"interests","interests":["Programming","Gaming"]}' >/dev/null; post $ASHA /api/onboarding '{"step":"finish"}' >/dev/null
 echo "26 Pathfinder earned after onboarding: $(get $ASHA /achievements | un | grep -c 'Pathfinder: ') (0 = earned)"
 QID=$(get $ASHA /questions | un | grep -o 'questions/[0-9a-f-]\{36\}' | head -1 | cut -d/ -f2)
 echo "27 Asha answers Ben's question: $(post $ASHA /api/answers "{\"questionId\":\"$QID\",\"body\":\"Third floor east wing is quiet.\"}" | cut -c1-30)"
@@ -83,18 +84,18 @@ echo "41 Cy sees verified participation: $(get $CY /achievements | un | grep -c 
 echo "42 council cancels Five-a-side -> Dev notified: $(act $BEN "{\"type\":\"event\",\"id\":\"$E2\",\"decision\":\"cancelled\"}" | cut -c1-30) $(get $DEV /notifications | un | grep -c 'Five-a-side" was cancelled')"
 echo "43 council completes Code night: $(act $BEN "{\"type\":\"event\",\"id\":\"$E1\",\"decision\":\"completed\"}" | cut -c1-30)  Event Organizer earned for Asha: $(get $ASHA /achievements | un | grep -c 'Event Organizer: ') (0 = earned)  Cy notified: $(get $CY /notifications | un | grep -c 'Code night" was marked as completed')"
 echo "== G. STUDENT DASHBOARD =="
-post $CY /api/profile "{\"name\":\"Cy\",\"avatar\":\"ball\",\"bio\":\"\",\"skills\":[],\"interests\":[\"Sports\"],\"visibility\":[],\"featured\":\"\",\"house\":\"tide\"}" >/dev/null
+post $CY /api/profile "{\"name\":\"Cy\",\"avatar\":\"ball\",\"bio\":\"\",\"skills\":[],\"interests\":[\"Sports\"],\"visibility\":[],\"featured\":\"\",\"house\":\"kaziranga\"}" >/dev/null
 F3=$(date -u -d '+6 days' +%Y-%m-%dT%H:%M); post $ASHA /api/events "{\"title\":\"Sunday run\",\"description\":\"Easy group run\",\"startsAt\":\"$F3\",\"format\":\"offline\",\"track\":\"sports\"}" >/dev/null
 post $ASHA /api/events "{\"title\":\"Hack evening\",\"description\":\"Build small things\",\"startsAt\":\"$(date -u -d '+4 days' +%Y-%m-%dT%H:%M)\",\"format\":\"online\",\"track\":\"technical\"}" >/dev/null
 for t in "Sunday run" "Hack evening"; do :; done
 EV2=($(get $ASHA '/events?when=mine' | un | grep -o '/events/[0-9a-f-]\{36\}' | awk '!s[$0]++' | cut -d/ -f3)); for e in "${EV2[@]}"; do act $BEN "{\"type\":\"event\",\"id\":\"$e\",\"decision\":\"approved\"}" >/dev/null; done
-echo "45 announcements: student create=$(post $CY /api/admin/announce '{"title":"Hi all","body":"Hello everyone","audience":"all"}' | cut -c1-40) council=$(post $BEN /api/admin/announce '{"title":"Welcome week","body":"Orientation on Monday","audience":"all"}' | cut -c1-30) admin house-only=$(post $BOSS /api/admin/announce '{"title":"Ember briefing","body":"Ember members meet Friday","audience":"ember"}' | cut -c1-30)"
-echo "    Asha(ember) sees: $(get $ASHA /dashboard | un | grep -o 'Welcome week\|Ember briefing' | sort -u | tr '\n' '/')  Cy(tide) sees: $(get $CY /dashboard | un | grep -o 'Welcome week\|Ember briefing' | sort -u | tr '\n' '/')"
+echo "45 announcements: student create=$(post $CY /api/admin/announce '{"title":"Hi all","body":"Hello everyone","audience":"all"}' | cut -c1-40) council=$(post $BEN /api/admin/announce '{"title":"Welcome week","body":"Orientation on Monday","audience":"all"}' | cut -c1-30) admin house-only=$(post $BOSS /api/admin/announce '{"title":"Gir briefing","body":"Ember members meet Friday","audience":"gir"}' | cut -c1-30)"
+echo "    Asha(gir) sees: $(get $ASHA /dashboard | un | grep -o 'Welcome week\|Gir briefing' | sort -u | tr '\n' '/')  Cy(kaziranga) sees: $(get $CY /dashboard | un | grep -o 'Welcome week\|Gir briefing' | sort -u | tr '\n' '/')"
 post $BEN /api/posts '{"kind":"question","title":"Where is the lab?","body":"Looking for the computer lab please.","track":"technical"}' >/dev/null
 C=$(get $CY /dashboard | un)
 echo "46 Cy's dashboard sections: $(echo "$C" | grep -o 'Your events\|Upcoming for you\|Quests for you\|Your submissions\|Recent activity\|>Saved<\|Recommended\|Notifications' | sort -u | wc -l)/8"
 echo "47 interest-matched sports event listed first & flagged: $(echo "$C" | grep -o 'Upcoming for you.\{0,400\}' | grep -o 'Sunday run\|Hack evening' | head -2 | tr '\n' '>')  flag: $(echo "$C" | grep -c 'matches your interests')"
-echo "48 recommended house with shared interest (Grove/Sports): $(echo "$C" | grep -c 'Grove House')  unanswered question list: $(get $CY /dashboard | un | grep -c 'Where is the lab')"
+echo "48 unanswered question list: $(get $CY /dashboard | un | grep -c 'Where is the lab')"
 echo "49 attended event in activity: $(echo "$C" | grep -c 'Attended: Code night')"
 echo "== H. SETTINGS =="
 echo "50 wrong current password: $(post $CY /api/account/password '{"current":"nope-nope-nope","next":"brand-new-pass-1"}')  short new: $(post $CY /api/account/password '{"current":"correct-horse-9","next":"short"}' | cut -c1-40)"

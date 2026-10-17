@@ -1,6 +1,7 @@
 #!/bin/bash
 . "$(dirname "$0")/lib.sh"
-startdev 3195 ADMIN_EMAILS=boss@uni.edu
+ROOT_DIR="${ROOT:-$(pwd)}"
+startdev 3220 ADMIN_EMAILS=boss@uni.edu
 ids() { sed 's/\\"/"/g' | grep -o "\"type\":\"$1\",\"id\":\"[0-9a-f-]\{36\}\"" | grep -o '[0-9a-f-]\{36\}' | awk '!s[$0]++'; }
 xp() { get $1 /dashboard | sed 's/<!-- -->//g' | grep -o '[0-9]* XP' | head -1; }
 BOSS=/tmp/boss5; BEN=/tmp/ben5; ASHA=/tmp/asha5; CY=/tmp/cy5; rm -f $BOSS $BEN $ASHA $CY
@@ -54,5 +55,5 @@ echo "27 archive a quest: $(act $BEN "{\"type\":\"quest\",\"id\":\"$QID\",\"acti
 curl -s $J -d '{"name":"Visitor","email":"v@x.com","subject":"Hello","message":"Do you run tours?"}' $B/api/contact >/dev/null
 echo "28 inbox: admin=$(get $BOSS /dashboard | grep -c 'Do you run tours') council(expect 0)=$(get $BEN /dashboard | grep -c 'Do you run tours')"
 echo "29 admin XP history: $(get $BOSS /dashboard | grep -c 'Event completed')  metrics blocks: $(get $BOSS /dashboard | sed 's/<!-- -->//g' | grep -o 'Members\|Verified\|Published posts\|Awaiting review' | sort -u | wc -l)/4"
-echo "errors in dev log: $(grep -ciE '⨯|unhandled|TypeError' /tmp/dev3195.log)"
-stopdev 3195
+echo "errors in dev log: $(grep -ciE '⨯|unhandled|TypeError' /tmp/dev3220.log)"
+stopdev 3220

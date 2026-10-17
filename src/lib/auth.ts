@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createHash, randomBytes } from "crypto";
 import { eq, sql } from "drizzle-orm";
 import { getDb, users } from "@/lib/db";
+import { houseOf } from "@/data/seed";
 
 const COOKIE = "ho_session";
 const secret = () => {
@@ -49,7 +50,14 @@ const ROLE_PERMS: Record<string, string[]> = {
 };
 export const can = (u: User | null, perm: string) => !!u && u.verification === "verified" && !!ROLE_PERMS[u.role]?.includes(perm);
 export async function requireUser() { const u = await getUser(); if (!u) redirect("/login"); return u; }
-export async function requirePermission(perm: string) { const u = await requireUser(); if (!can(u, perm)) redirect("/dashboard"); return u; }
+// Students must belong to a house. Until they choose one they are sent to onboarding (staff accounts are exempt so moderation is never blocked).
+export const hasHouse = (u: User) => !!houseOf(u.houseSlug);
+export async function requirePermission(perm: string, opts?: { allowNoHouse?: boolean }) {
+  const u = await requireUser();
+  if (!can(u, perm)) redirect("/dashboard");
+  if (!opts?.allowNoHouse && u.role === "student" && !hasHouse(u)) redirect("/onboarding");
+  return u;
+}
 
 export const newToken = () => randomBytes(32).toString("hex");
 export const hashToken = (t: string) => createHash("sha256").update(t).digest("hex");

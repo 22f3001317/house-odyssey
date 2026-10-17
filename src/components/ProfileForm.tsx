@@ -10,14 +10,16 @@ type Props = { initial: { name: string; avatar: string; house: string; bio: stri
 export default function ProfileForm({ initial, houses, interests, featuredOptions }: Props) {
   const router = useRouter();
   const [f, setF] = useState(initial);
+  const refreshMe = () => window.dispatchEvent(new Event("me:refresh"));
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const toggle = (k: "interests" | "visibility", v: string) => setF({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] });
   async function save(e: React.FormEvent) {
     e.preventDefault(); setMsg(null);
-    const body = { name: f.name, avatar: f.avatar, house: f.house || undefined, bio: f.bio, skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean), interests: f.interests, visibility: f.visibility, featured: f.featured };
+    if (!f.house) return setMsg({ ok: false, text: "Choose your house to save your profile." });
+    const body = { name: f.name, avatar: f.avatar, house: f.house, bio: f.bio, skills: f.skills.split(",").map((s) => s.trim()).filter(Boolean), interests: f.interests, visibility: f.visibility, featured: f.featured };
     const r = await fetch("/api/profile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const d = await r.json().catch(() => ({}));
-    setMsg({ ok: r.ok, text: d.message ?? d.error ?? "Something went wrong." }); if (r.ok) router.refresh();
+    setMsg({ ok: r.ok, text: d.message ?? d.error ?? "Something went wrong." }); if (r.ok) { router.refresh(); refreshMe(); }
   }
   const input = "mt-1 w-full rounded-lg border-2 border-ink bg-white p-3", chip = (on: boolean) => `cursor-pointer rounded-full border-2 border-ink px-4 py-2 ${on ? "bg-compass font-bold" : "bg-white"}`;
   return (
@@ -25,7 +27,7 @@ export default function ProfileForm({ initial, houses, interests, featuredOption
       <fieldset><legend className="font-display text-xl font-bold">Avatar</legend>
         <div className="mt-2 flex flex-wrap gap-3">{AVATARS.map((a) => <label key={a.key} className={`cursor-pointer rounded-full p-1 ${f.avatar === a.key ? "ring-4 ring-dusk" : ""}`}><input type="radio" name="avatar" className="sr-only" checked={f.avatar === a.key} onChange={() => setF({ ...f, avatar: a.key })} /><Avatar k={a.key} size={56} /><span className="sr-only">{a.name}</span></label>)}</div></fieldset>
       <div><label htmlFor="name" className="font-display text-xl font-bold">Display name</label><input id="name" className={input} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-      <div><label htmlFor="house" className="font-display text-xl font-bold">Your house</label><select id="house" className={input} value={f.house} onChange={(e) => setF({ ...f, house: e.target.value })}><option value="">Not chosen yet</option>{houses.map((h) => <option key={h.slug} value={h.slug}>{h.name}</option>)}</select>
+      <div><label htmlFor="house" className="font-display text-xl font-bold">Your house (required)</label><select id="house" required className={input} value={f.house} onChange={(e) => setF({ ...f, house: e.target.value })}><option value="" disabled>Choose your house…</option>{houses.map((h) => <option key={h.slug} value={h.slug}>{h.name}</option>)}</select>
         <p className="mt-1 text-sm">This is the house you chose. Official membership may be confirmed separately.</p></div>
       <div><label htmlFor="bio" className="font-display text-xl font-bold">Short bio</label><textarea id="bio" rows={3} maxLength={280} className={input} value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /><p className="text-sm">{f.bio.length}/280</p></div>
       <div><label htmlFor="skills" className="font-display text-xl font-bold">Skills (optional)</label><input id="skills" className={input} placeholder="e.g. Python, guitar, event planning" value={f.skills} onChange={(e) => setF({ ...f, skills: e.target.value })} /><p className="text-sm">Separate with commas, up to 8.</p></div>

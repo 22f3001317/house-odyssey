@@ -22,9 +22,14 @@ Set these in Vercel, then turn `DEMO_VERIFICATION` off and redeploy: `SMTP_URL`,
 ## Test
 Each script starts the app on a fresh local database and checks the behaviour end to end:
 
+    bash scripts/smoke-houses.sh               # mandatory house, the 12 houses, background assets
     PORT=3200 bash scripts/smoke-admin.sh      # roles, moderation, XP rules, events
     bash scripts/smoke-analytics.sh            # analytics tab, members tab, CSV export
     bash scripts/smoke-members.sh              # profiles, achievements, notifications, events, dashboards
+
+## Houses and the animated background
+The 12 IITM BS houses (names and places from https://study.iitm.ac.in/ds/student_life.html) live in `src/data/seed.ts`. Each has a theme colour and a "forest companion" animal that wanders through the background of the site for members of that house. Visitors, and members who haven't chosen a house yet, see a savanna (chital, blackbuck, monkeys, jackals, predators, birds, insects). Choosing a house is mandatory for students: the server redirects them to onboarding and blocks community actions until they do. The scene respects "reduce motion" and is hidden from screen readers.
+Each companion records its `basis`: `house-site` (named on the house's own site), `park` (flagship species of the forest) or `unconfirmed` (best guess). Colours and animals are illustrations, not official logos; edit the file to match the real logos.
 
 ## One dashboard, three views
 `/dashboard` is the only dashboard address. What you see depends on your role, and every action is re-checked on the server:

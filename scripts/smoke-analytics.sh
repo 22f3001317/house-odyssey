@@ -1,6 +1,7 @@
 #!/bin/bash
 . "$(dirname "$0")/lib.sh"
-startdev 3196 ADMIN_EMAILS=boss@uni.edu
+ROOT_DIR="${ROOT:-$(pwd)}"
+startdev 3221 ADMIN_EMAILS=boss@uni.edu
 ids() { sed 's/\\"/"/g' | grep -o "\"type\":\"$1\",\"id\":\"[0-9a-f-]\{36\}\"" | grep -o '[0-9a-f-]\{36\}' | awk '!s[$0]++'; }
 strip() { sed 's/<!-- -->//g'; }
 BOSS=/tmp/boss7; BEN=/tmp/ben7; ASHA=/tmp/asha7; CY=/tmp/cy7; F1=/tmp/f17; F2=/tmp/f27; rm -f $BOSS $BEN $ASHA $CY $F1 $F2
@@ -27,7 +28,7 @@ echo "5 KPI cards: $(echo "$A" | grep -o '>[0-9]*</p><p class="text-sm">[A-Za-z0
 echo "   expected: Members 7, Verified 5, Awaiting 1, Not confirmed 1, Active today 5, Page views 9"
 echo "6 top pages: $(echo "$A" | grep -o '<li>/[^<]* · [0-9]*</li>' | sed 's/<[^>]*>//g' | tr '\n' ';')"
 echo "7 charts rendered (expect 4): $(echo "$A" | grep -o 'role="img"' | wc -l)   admin paths excluded (expect 0): $(echo "$A" | grep -c '/admin/secret')"
-echo "8 top contributors has Asha(2 posts, 1 quest): $(echo "$A" | grep -c 'Asha<span class="block text-xs">No house yet</span></td><td class="[^"]*">2</td><td class="[^"]*">0</td><td class="[^"]*">1</td>')  Ben(1 answer): $(echo "$A" | grep -c 'Ben<span class="block text-xs">No house yet</span></td><td class="[^"]*">0</td><td class="[^"]*">1</td>')"
+echo "8 top contributors has Asha(2 posts, 1 quest): $(echo "$A" | grep -c 'Asha<span class="block text-xs">Gir House</span></td><td class="[^"]*">2</td><td class="[^"]*">0</td><td class="[^"]*">1</td>')  Ben(1 answer): $(echo "$A" | grep -c 'Ben<span class="block text-xs">Gir House</span></td><td class="[^"]*">0</td><td class="[^"]*">1</td>')"
 echo "9 funnel+houses+quests+content sections: $(echo "$A" | grep -o 'Onboarding progress\|>Houses<\|Quest completions\|>Content<' | sort -u | wc -l)/4   quest 'House trivia: 1 done': $(echo "$A" | grep -c 'House trivia: 1 done')"
 U=$(get $BOSS /dashboard?tab=members | strip)
 echo "10 users page rows (expect 7 emails): $(echo "$U" | grep -o '[a-z0-9]*@uni.edu' | sort -u | wc -l)   '7 signed-up members': $(echo "$U" | grep -c '7 signed-up')"
@@ -39,5 +40,5 @@ echo "14 CSV lines (expect 8): $(echo "$CSV" | wc -l)   header: $(echo "$CSV" | 
 echo "15 formula cell neutralised: $(echo "$CSV" | grep -c '"'"'"'=1+1"')  (unsafe raw =1+1 as first char, expect 0): $(echo "$CSV" | grep -c '^"=1+1"')"
 echo "16 CSV headers: $(curl -s -b $BOSS -D - -o /dev/null $B/api/admin/export | grep -i 'content-type\|content-disposition' | tr -d '\r' | tr '\n' ' ')"
 echo "17 (obsolete: links replaced by tabs)"
-echo "errors in dev log: $(grep -ciE '⨯|unhandled|TypeError' /tmp/dev3196.log)"
-stopdev 3196
+echo "errors in dev log: $(grep -ciE '⨯|unhandled|TypeError' /tmp/dev3221.log)"
+stopdev 3221
